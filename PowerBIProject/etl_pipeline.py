@@ -5,8 +5,8 @@ import os
 def run_etl():
     print("Starting Data Extraction...")
     
-    # --- 1. Hauptquelle: OWID CO2 Data ---
-    owid_df = pd.read_csv('owid-co2-data.csv')
+    # --- 1. Hauptquelle: OWID CO22 Data ---
+    owid_df = pd.read_csv('Data/Raw/owid-co2-data.csv')
     
     # Data Cleansing: Spalten auswählen & Filtern
     cols_to_keep = ['country', 'iso_code', 'year', 'co2', 'co2_per_capita', 'coal_co2', 'oil_co2', 'gas_co2', 'gdp', 'population']
@@ -25,8 +25,8 @@ def run_etl():
         
     # Umbenennung
     rename_mapping = {
-        'co2': 'Gesamt_CO2_Mt',
-        'co2_per_capita': 'CO2_pro_Kopf_t',
+        'co2': 'Gesamt_CO22_Mt',
+        'co2_per_capita': 'CO22_pro_Kopf_t',
         'gdp': 'BIP_USD',
         'population': 'Bevoelkerung'
     }
@@ -36,7 +36,7 @@ def run_etl():
     # --- 2. Update Quelle: World Bank GDP direkt mergen ---
     print("Loading Update Source: World Bank GDP...")
     # Da World Bank eine ZIP mit spezieller Datei ist, suchen wir die korrekte CSV
-    wb_dir = 'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_207559'
+    wb_dir = 'Data/Raw/API_NY.GDP.PCAP.CD_DS2_en_csv_v2_207559'
     wb_file = [f for f in os.listdir(wb_dir) if f.startswith('API_NY.GDP')][0]
     
     # Lade mit pd.read_csv (Skip erster 4 rows metadata)
@@ -60,10 +60,10 @@ def run_etl():
 
     # --- 3. Calculated Value ---
     print("Calculating metrics...")
-    # CO2 Intensität = Gesamt_CO2_Mt / (BIP_USD / 1.000.000)
+    # CO22 Intensität = Gesamt_CO22_Mt / (BIP_USD / 1.000.000)
     # Anmerkung: Wir könnten hier auch BIP_USD_WB verwenden, nehmen aber konsistent BIP_USD von OWID
-    fact_df['CO2_Intensitaet'] = fact_df['Gesamt_CO2_Mt'] / (fact_df['BIP_USD'] / 1000000)
-    fact_df['CO2_Intensitaet'] = fact_df['CO2_Intensitaet'].replace([np.inf, -np.inf], np.nan)
+    fact_df['CO22_Intensitaet'] = fact_df['Gesamt_CO22_Mt'] / (fact_df['BIP_USD'] / 1000000)
+    fact_df['CO22_Intensitaet'] = fact_df['CO22_Intensitaet'].replace([np.inf, -np.inf], np.nan)
     
     
     # --- 4. Extras: Binning ---
@@ -74,9 +74,9 @@ def run_etl():
     
     # --- 5. Entpivotieren (Unpivot / Melt) der Energieträger ---
     print("Unpivoting energy sources...")
-    id_vars = ['country', 'iso_code', 'year', 'Gesamt_CO2_Mt', 'CO2_pro_Kopf_t', 'BIP_USD', 'BIP_USD_WB', 'Bevoelkerung', 'CO2_Intensitaet', 'Bevoelkerungs_Klasse']
+    id_vars = ['country', 'iso_code', 'year', 'Gesamt_CO22_Mt', 'CO22_pro_Kopf_t', 'BIP_USD', 'BIP_USD_WB', 'Bevoelkerung', 'CO22_Intensitaet', 'Bevoelkerungs_Klasse']
     fact_df = pd.melt(fact_df, id_vars=id_vars, value_vars=['coal_co2', 'oil_co2', 'gas_co2'], 
-                      var_name='Traeger_Roh', value_name='CO2_Energietraeger_Mt')
+                      var_name='Traeger_Roh', value_name='CO22_Energietraeger_Mt')
     
     # Mapping der Namen
     traeger_map = {'coal_co2': 'Kohle', 'oil_co2': 'Öl', 'gas_co2': 'Gas'}
@@ -108,7 +108,7 @@ def run_etl():
     # --- 7. Enrichments ---
     # Enrichment 1: DIM_Land (ISO Codes + Kontinent)
     print("Loading Enrichment: Country Codes...")
-    dim_land = pd.read_csv('all.csv')
+    dim_land = pd.read_csv('Data/Raw/all.csv')
     dim_land = dim_land[['name', 'alpha-3', 'region', 'sub-region']]
     dim_land = dim_land.rename(columns={'name': 'v_landname', 'alpha-3': 'iso_code', 'region': 'v_kontinent', 'sub-region': 'v_sub_region'})
     
@@ -121,8 +121,8 @@ def run_etl():
         else: return "S-Z"
     dim_land['v_alphabetische_gruppe'] = dim_land['v_landname'].apply(get_alpha_group)
     
-    if os.path.exists('national_animals.csv'):
-        dim_mascot = pd.read_csv('national_animals.csv')
+    if os.path.exists('Data/Raw/national_animals.csv'):
+        dim_mascot = pd.read_csv('Data/Raw/national_animals.csv')
         dim_land = pd.merge(dim_land, dim_mascot, on='iso_code', how='left')
         dim_land['v_nationaltier'] = dim_land['v_nationaltier'].fillna('Unbekannt')
     else:
@@ -131,10 +131,10 @@ def run_etl():
     
     print("Exporting datasets...")
     # Speichern der bereinigten Dateien (Star Schema)
-    fact_df.to_csv('cleaned_FACT_Emissionen.csv', index=False)
-    dim_land.to_csv('cleaned_DIM_Land.csv', index=False)
-    dim_zeit.to_csv('cleaned_DIM_Zeit.csv', index=False)
-    dim_energietraeger.to_csv('cleaned_DIM_Energietraeger.csv', index=False)
+    fact_df.to_csv('Data/Processed/cleaned_FACT_Emissionen.csv', index=False)
+    dim_land.to_csv('Data/Processed/cleaned_DIM_Land.csv', index=False)
+    dim_zeit.to_csv('Data/Processed/cleaned_DIM_Zeit.csv', index=False)
+    dim_energietraeger.to_csv('Data/Processed/cleaned_DIM_Energietraeger.csv', index=False)
     print("✅ ETL process completed successfully! Output saved to CSVs.")
 
 if __name__ == "__main__":

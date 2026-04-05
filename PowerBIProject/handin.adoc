@@ -1,16 +1,18 @@
-= BI-Projekt: Globale CO₂-Emissionen & Wirtschaftskraft
-Vorwissenschaftliche Arbeit – DBI 5. Klasse
+= Business Intelligence: Globale CO2-Analyse
+Orhan Softic & David Zimmer
+v1.0, 2026
+:title-page:
 :toc: left
-:toclevels: 3
+:toc-title: Inhaltsverzeichnis
+:sectnums:
 :icons: font
 
-<<<
 // ============================================================
 == Slide 1: Idee & Forschungsfragen
 // ============================================================
 
 === Thema
-Dieses BI-Projekt analysiert den logischen Zusammenhang zwischen globalen *CO₂-Emissionen*, der *Wirtschaftskraft (BIP)* und der *Bevölkerungsgröße* auf Länder- und Kontinentebene. Die Datenverarbeitung (ETL, Star-Schema Generierung) wurde als "Code-First"-Ansatz in Python (Pandas) implementiert.
+Dieses BI-Projekt analysiert den logischen Zusammenhang zwischen globalen *CO2-Emissionen*, der *Wirtschaftskraft (BIP)* und der *Bevölkerungsgröße* auf Länder- und Kontinentebene. Die Datenverarbeitung wurde als "Code-First"-Ansatz in Python implementiert.
 
 === Forschungsfragen (OLAP-Operationen)
 
@@ -19,11 +21,11 @@ Dieses BI-Projekt analysiert den logischen Zusammenhang zwischen globalen *CO₂
 | Nr. | Forschungsfrage | OLAP-Operation
 
 | *F1*
-| Wie verteilen sich die Pro-Kopf-CO₂-Emissionen weltweit *im Jahr 2022* – welche Länder emittieren besonders viel?
+| Wie verteilen sich die Pro-Kopf-CO2-Emissionen weltweit *im Jahr 2022* – welche Länder emittieren besonders viel?
 | *Slice* - Zeitdimension auf ein Jahr fixiert
 
 | *F2*
-| Wie hoch sind die Gesamt-CO₂-Emissionen in *Europa* im Zeitraum *2000–2022*, und wie unterscheidet sich der Anteil von Kohle-, Öl- und Gasverbrennung?
+| Wie hoch sind die Gesamt-CO2-Emissionen in *Europa* im Zeitraum *2000–2022*, und wie unterscheidet sich der Anteil von Kohle-, Öl- und Gasverbrennung?
 | *Dice* - Filterung auf geographische Region Kontinent sowie Zeitraum gleichzeitig
 
 | *F3*
@@ -37,9 +39,9 @@ Dieses BI-Projekt analysiert den logischen Zusammenhang zwischen globalen *CO₂
 == Slide 2: Hauptdatenquellen
 // ============================================================
 
-=== Datenquelle 1: Our World in Data - CO₂ Dataset 
+=== Datenquelle 1: Our World in Data - CO2 Dataset 
 * *Typ*: Incremental (jährlich um ein neues Kalenderjahr ergänzt)
-* *Inhalt*: Detaillierte Aufschlüsselung globaler CO₂-Emissionen, Energieträger, BIP, Bevölkerung etc. pro Land (Zeile = Land pro Jahr). Ca. 79 Spalten.
+* *Inhalt*: Detaillierte Aufschlüsselung globaler CO2-Emissionen, Energieträger, BIP, Bevölkerung etc. pro Land (Zeile = Land pro Jahr). Ca. 79 Spalten.
 * *Quelle*: https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv
 
 === Datenquelle 2: World Bank GDP per capita (Update-Quelle)
@@ -153,7 +155,7 @@ Zusätzlich zu den Kernanforderungen beinhaltet das Datenmodell zwei vollkommen 
 
 === "Ridiculous" Dimension 1: Alphabetische Ländergruppe
 _(Generiert aus bestehenden Basisdaten, keine externe File)_ +
-Länder werden basierend auf ihrem Anfangsbuchstaben gruppiert, um auszuwerten, ob der Anfangsbuchstabe eines Landes eine "Scheinkorrelation" zum CO₂-Ausstoß hat.
+Länder werden basierend auf ihrem Anfangsbuchstaben gruppiert, um auszuwerten, ob der Anfangsbuchstabe eines Landes eine "Scheinkorrelation" zum CO2-Ausstoß hat.
 
 * *A-F*: z.B. Austria, Australia, France
 * *G-L*: z.B. Germany, Italy, Japan
@@ -172,7 +174,7 @@ Jedem Land (ISO-Code) wird sein offizielles/inoffizielles Nationaltier (z.B. Adl
 Das Dashboarding und Plotting wurde mittels `Plotly`, `Seaborn` und `Matplotlib` direkt auf Basis der verknüpften Star-Schema CSV-Exportdateien via Code generiert.
 
 === Slide 6a: Seriöser Report
-.Visualisierung 1: CO₂ pro Kopf nach Land (Slice 2022 / Geographisch) 
+.Visualisierung 1: CO2 pro Kopf nach Land (Slice 2022 / Geographisch) 
 image::Images/Plot1_GeoMap.png[GeoMap, width=100%]
 
 .Visualisierung 2: Energieträgermix in Europa (Dice 2000-2022)
@@ -185,13 +187,13 @@ image::Images/Plot3_Scatter.png[Scatter Plot, width=100%]
 
 === Slide 6b: Ridiculous Report & Extra Stuff
 
-.Visualisierung 4: Welches Nationaltier stößt am meisten CO₂ aus? (Ridiculous Plot)
+.Visualisierung 4: Welches Nationaltier stößt am meisten CO2 aus? (Ridiculous Plot)
 image::Images/Plot4_Ridiculous.png[Ridiculous, width=100%]
 
 .Visualisierung 5: Korrelations-Heatmap (Geiler Scheiß / Extra Point)
 image::Images/Plot5_Correlation.png[Correlation, width=100%]
 
-_Begründung Extra-Stuff:_ Um dem analytischen Kern von Business Intelligence gerecht zu werden, wurde klassisches Machine Learning/Data Science Tooling (Korrelationsmatrizen) eingebaut. Es beweist statistisch, dass z.B. ein starkes BIP in massivster Korrelation zum CO₂-Ausstoß steht (Echte Korrelation).
+_Begründung Extra-Stuff:_ Um dem analytischen Kern von Business Intelligence gerecht zu werden, wurde klassisches Machine Learning/Data Science Tooling (Korrelationsmatrizen) eingebaut. Es beweist statistisch, dass z.B. ein starkes BIP in massivster Korrelation zum CO2₂-Ausstoß steht (Echte Korrelation).
 
 <<<
 
@@ -200,7 +202,7 @@ _Begründung Extra-Stuff:_ Um dem analytischen Kern von Business Intelligence ge
 // ============================================================
 
 === F1 - Slice (Geo-Verteilung 2022)
-*Ergebnis*: Saudi-Arabien, die vereinigten Arabischen Emirate und weite Teile Nordamerikas/Osteuropas dominieren die globale Karte des _Pro-Kopf-CO₂-Ausstoßes_. 
+*Ergebnis*: Saudi-Arabien, die vereinigten Arabischen Emirate und weite Teile Nordamerikas/Osteuropas dominieren die globale Karte des _Pro-Kopf-CO2-Ausstoßes_. 
 _Interpretation_: Länder mit enorm hohen Erträgen durch Ölförderung weisen auch bevölkerungsbereinigt extrem schlechte (rote) Emissions-Werte auf, während Westeuropa und Südamerika deutlich moderater agieren.
 
 === F2 - Dice (Europäischer Energie-Mix 2000-2022)
@@ -208,8 +210,8 @@ _Interpretation_: Länder mit enorm hohen Erträgen durch Ölförderung weisen a
 _Interpretation_: Besonders die Emissionen aus Kohle wurden extrem zurückgefahren (Kohleausstieg), während Gas eine leichte, aber konstante Basisversorgung übernommen hat.
 
 === F3 - Drill-Down (Wirtschaftskraft vs. Emissionen in Europa)
-*Ergebnis*: Der Log-Log-Scatterplot deckt auf, dass Länder wie Deutschland oder UK beim CO₂-Ausstoß und BIP im ersten Quadranten ganz oben aufscheinen. 
-_Interpretation_: Wirtschaftskraft und Emissionen wachsen grob linear (auf der logarithmischen Achse). Auffällig ist jedoch, dass z.B. Frankreich bei fast identischem BIP wie UK/Deutschland merklich weniger CO₂ emittiert – vermutlich zurückzuführen auf starke historische Nuklearenergieanteile (welche im Datensatz keinen Fossil-Fußabdruck erzeugen).
+*Ergebnis*: Der Log-Log-Scatterplot deckt auf, dass Länder wie Deutschland oder UK beim CO2-Ausstoß und BIP im ersten Quadranten ganz oben aufscheinen. 
+_Interpretation_: Wirtschaftskraft und Emissionen wachsen grob linear (auf der logarithmischen Achse). Auffällig ist jedoch, dass z.B. Frankreich bei fast identischem BIP wie UK/Deutschland merklich weniger CO2 emittiert – vermutlich zurückzuführen auf starke historische Nuklearenergieanteile (welche im Datensatz keinen Fossil-Fußabdruck erzeugen).
 
 === Ridiculous Finding
-*Ergebnis*: Länder, welche einen großen *Bären* (Russischer Bär) oder große *Vögel* (Adler / USA) als Maskottchen haben, weisen historisch den absolut katastrophalsten CO₂-Schnitt auf. Länder mit Springböcken oder Jaguaren sind am umweltfreundlichsten unterwegs.
+*Ergebnis*: Länder, welche einen großen *Bären* (Russischer Bär) oder große *Vögel* (Adler / USA) als Maskottchen haben, weisen historisch den absolut katastrophalsten CO2-Schnitt auf. Länder mit Springböcken oder Jaguaren sind am umweltfreundlichsten unterwegs.
