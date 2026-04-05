@@ -455,3 +455,58 @@ Erstellt über *„Neues Measure"* in `FACT_Emissionen`:
 | https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes
 
 |===
+
+// ============================================================
+== Slide 5: Ridicilous Dimensions (Sinnlose Dimensionen)
+// ============================================================
+
+Um bewusste Scheinkorrelationen aufzeigen zu können, wurden zwei absurde Dimensionen in die Tabelle `DIM_Sinnlos` integriert:
+
+=== 1. Sinnlose Dimension: Aus bestehenden Daten generiert
+* **Idee:** Länge des offiziellen Ländernamens (`Kurz`, `Mittel`, `Lang`).
+* **Zweck:** Gibt es einen kausalen Zusammenhang zwischen kurzen Ländernamen und CO₂-Ausstoß? (Achtung: Nein.)
+* **Umsetzung:** In Python / Power BI via berechneter Spalte aus dem `Landname`.
+
+=== 2. Sinnlose Dimension: Externes Enrichment File
+* **Idee:** Bierkonsum pro Kopf nach Land.
+* **Quelle (Source-Link):** https://raw.githubusercontent.com/justmarkham/DAT8/master/data/drinks.csv (Nicht Kaggle)
+* **Zweck:** Sind biertrinkende Nationen klimaschädlicher?
+
+// ============================================================
+== Slide 6: Visualizations & Reports
+// ============================================================
+
+=== Slide 6a: Serious Report (Python/BI)
+Dieser Report beantwortet die echten Forschungsfragen mithilfe des gefertigten Star-Schemas:
+* **Map / Geo-Plot:** Zeigt die Top CO₂ Emittenten (Geografische Visualisierung).
+* **Line Charts:** Zeigt den zeitlichen Verlauf und den Energiemix (Dice).
+* **Scatter Plot:** BIP pro Kopf vs. CO₂ Intensität (Drill-Down Analyse).
+
+.Geo-Visualisierung: Top Emittenten (Slice)
+image::Images/Serious_TopEmitters.png[Top 15 Emittenten 2022, 100%]
+
+.Zeitreihe Europas Energiemix (Dice)
+image::Images/Serious_TimeSeries.png[Energiemix Europa, 100%]
+
+.BIP vs. CO2-Intensität (Drill-Down)
+image::Images/Serious_ScatterBIP.png[Scatter Plot, 100%]
+
+=== Slide 6b: Ridicilous Report (Scheinkorrelationen)
+* **Die Bier-Korrelation:**
+Es wirkt auf den ersten Blick so, als würden Nationen der Klasse "Trinkfest" enorm hohe CO₂-Werte aufweisen, während "Wenig Trinker" am unteren Ende liegen. 
+
+.Bierkonsum vs. CO2 Emissionen
+image::Images/Ridiculous_BeerCO2.png[Bier gegen CO2, 100%]
+
+// ============================================================
+== Slide 7: Diskussion & Erkenntnisse
+// ============================================================
+
+=== Beantwortung der Forschungsfragen (Serious)
+1. **Slice (Wer emittiert im Jahr 2022 am meisten?):** China und die USA dominieren auf der Länderebene absolut gesehen den Ausstoß und führen die Karte unangefochten an.
+2. **Dice (Europas Entwicklung 2000-2022):** Europa konnte seinen Kohle-Ausstoß stark reduzieren. Gas bleibt jedoch relativ stabil.
+3. **Drill-down (BIP vs. Emissionen):** Wir erkennen, dass eine hohe Wirtschaftsleistung oft mit geringerer genereller CO2-"Intensität" korreliert, weil reiche Länder massiv in Effizienz investieren, obwohl absolute Werte hoch bleiben.
+
+=== Was wir aus dem Ridiculous Report lernen ("Geiler Scheiß")
+* **Korrelation ist nicht gleich Kausalität:** Unser Balkendiagramm zeigt deutlich, dass Bier-liebende Nationen angeblich mehr CO₂ pro Kopf ausstoßen. Der Grund dafür ist schlichtweg demografisch: Westliche, europäische Nationen haben historisch einen hohen CO₂-Fußabdruck gepaart durch Industrialisierung *UND* eine kulturell historisch gewachsene Braukultur. CO₂ entsteht durch Industrie, nicht durchs Biertrinken.
+* **Tech-Stapel:** Als "geiler Scheiß" (zusätzliches Extra) wurde das **komplette Power BI Star Schema mit Python nachprogrammiert**, in eine `SQLite` Datenbank exportiert und die Visualisierungen mit Pandas / Seaborn erstellt. Dies beweist das tiefe Verständnis von ETL/OLAP, abseits von vorgefertigten Klick-Menüs!
