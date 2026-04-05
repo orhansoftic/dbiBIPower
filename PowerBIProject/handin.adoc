@@ -65,7 +65,7 @@ Dieses BI-Projekt analysiert den logischen Zusammenhang zwischen globalen *CO₂
 | `df[col].fillna(0)` für spezifische Energieträgerspalten.
 
 | 5. Umbenennungen 
-| `df.rename(columns={'co2_per_capita': 'CP2_pro_Kopf_t'})` für bessere Beschreibungen.
+| `df.rename(columns={'co2_per_capita': 'CO2_pro_Kopf_t'})` für bessere Beschreibungen.
 
 | 6. World Bank (Update Quelle) 
 | Wide-Format CSV der WorldBank: via `pd.melt()` in Long-Format umgewandelt und als `BIP_USD_WB` direkt per Left-Join (`iso_code` + `year`) an die Faktentabelle gemerged.
@@ -143,3 +143,73 @@ Spiegelt die Effizienz der CO2-Erzeugung zur Wirtschaftskraft wider.
 
 * DAX/Pandas Äquivalent: `Gesamt_CO2_Mt / (BIP_USD / 1.000.000)`
 * _Szenariodiskussion_: Vergleicht wie viel CO2 beim generieren von einer Millionen USD BIP pro Staat ausgestoßen wird.
+
+<<<
+
+// ============================================================
+== Slide 5: Ridiculous Dimensions
+// ============================================================
+Zusätzlich zu den Kernanforderungen beinhaltet das Datenmodell zwei vollkommen irrsinnige Dimensionen, um die Flexibilität der ETL-Pipeline zu demonstrieren.
+
+=== "Ridiculous" Dimension 1: Alphabetische Ländergruppe
+_(Generiert aus bestehenden Basisdaten, keine externe File)_ +
+Länder werden basierend auf ihrem Anfangsbuchstaben gruppiert, um auszuwerten, ob der Anfangsbuchstabe eines Landes eine "Scheinkorrelation" zum CO₂-Ausstoß hat.
+
+* *A-F*: z.B. Austria, Australia, France
+* *G-L*: z.B. Germany, Italy, Japan
+* *M-R*: z.B. Mexico, Russia
+* *S-Z*: z.B. Sweden, USA (United States), Switzerland
+
+=== "Ridiculous" Dimension 2: Nationaltiere
+_(via zusätzlicher Enrichment CSV-Datei `national_animals.csv`)_ +
+Jedem Land (ISO-Code) wird sein offizielles/inoffizielles Nationaltier (z.B. Adler, Känguru, Gallischer Hahn) zugewiesen, um zu evaluieren, ob Länder mit Raubtieren als Maskottchen eventuell mehr Fossilbrennstoffe verbrauchen.
+
+<<<
+
+// ============================================================
+== Slide 6: Report (Python Visualizations)
+// ============================================================
+Das Dashboarding und Plotting wurde mittels `Plotly`, `Seaborn` und `Matplotlib` direkt auf Basis der verknüpften Star-Schema CSV-Exportdateien via Code generiert.
+
+=== Slide 6a: Seriöser Report
+.Visualisierung 1: CO₂ pro Kopf nach Land (Slice 2022 / Geographisch) 
+image::Images/Plot1_GeoMap.png[GeoMap, width=100%]
+
+.Visualisierung 2: Energieträgermix in Europa (Dice 2000-2022)
+image::Images/Plot2_EnergyMix.png[Stacked Bar, width=100%]
+
+.Visualisierung 3: BIP vs. Gesamtemissionen in Europa (Drill-Down auf Länder)
+image::Images/Plot3_Scatter.png[Scatter Plot, width=100%]
+
+<<<
+
+=== Slide 6b: Ridiculous Report & Extra Stuff
+
+.Visualisierung 4: Welches Nationaltier stößt am meisten CO₂ aus? (Ridiculous Plot)
+image::Images/Plot4_Ridiculous.png[Ridiculous, width=100%]
+
+.Visualisierung 5: Korrelations-Heatmap (Geiler Scheiß / Extra Point)
+image::Images/Plot5_Correlation.png[Correlation, width=100%]
+
+_Begründung Extra-Stuff:_ Um dem analytischen Kern von Business Intelligence gerecht zu werden, wurde klassisches Machine Learning/Data Science Tooling (Korrelationsmatrizen) eingebaut. Es beweist statistisch, dass z.B. ein starkes BIP in massivster Korrelation zum CO₂-Ausstoß steht (Echte Korrelation).
+
+<<<
+
+// ============================================================
+== Slide 7: Diskussion & Beantwortung
+// ============================================================
+
+=== F1 - Slice (Geo-Verteilung 2022)
+*Ergebnis*: Saudi-Arabien, die vereinigten Arabischen Emirate und weite Teile Nordamerikas/Osteuropas dominieren die globale Karte des _Pro-Kopf-CO₂-Ausstoßes_. 
+_Interpretation_: Länder mit enorm hohen Erträgen durch Ölförderung weisen auch bevölkerungsbereinigt extrem schlechte (rote) Emissions-Werte auf, während Westeuropa und Südamerika deutlich moderater agieren.
+
+=== F2 - Dice (Europäischer Energie-Mix 2000-2022)
+*Ergebnis*: Insgesamt zeigt sich bei der Auswertung im Balkendiagramm ein klarer, historischer Abwärtstrend der Gesamtemissionen Europas seit dem Jahr 2000.
+_Interpretation_: Besonders die Emissionen aus Kohle wurden extrem zurückgefahren (Kohleausstieg), während Gas eine leichte, aber konstante Basisversorgung übernommen hat.
+
+=== F3 - Drill-Down (Wirtschaftskraft vs. Emissionen in Europa)
+*Ergebnis*: Der Log-Log-Scatterplot deckt auf, dass Länder wie Deutschland oder UK beim CO₂-Ausstoß und BIP im ersten Quadranten ganz oben aufscheinen. 
+_Interpretation_: Wirtschaftskraft und Emissionen wachsen grob linear (auf der logarithmischen Achse). Auffällig ist jedoch, dass z.B. Frankreich bei fast identischem BIP wie UK/Deutschland merklich weniger CO₂ emittiert – vermutlich zurückzuführen auf starke historische Nuklearenergieanteile (welche im Datensatz keinen Fossil-Fußabdruck erzeugen).
+
+=== Ridiculous Finding
+*Ergebnis*: Länder, welche einen großen *Bären* (Russischer Bär) oder große *Vögel* (Adler / USA) als Maskottchen haben, weisen historisch den absolut katastrophalsten CO₂-Schnitt auf. Länder mit Springböcken oder Jaguaren sind am umweltfreundlichsten unterwegs.

@@ -26,7 +26,7 @@ def run_etl():
     # Umbenennung
     rename_mapping = {
         'co2': 'Gesamt_CO2_Mt',
-        'co2_per_capita': 'CP2_pro_Kopf_t',
+        'co2_per_capita': 'CO2_pro_Kopf_t',
         'gdp': 'BIP_USD',
         'population': 'Bevoelkerung'
     }
@@ -72,10 +72,9 @@ def run_etl():
     labels = ["Klein", "Mittel", "Groß", "Gigantisch"]
     fact_df['Bevoelkerungs_Klasse'] = pd.cut(fact_df['Bevoelkerung'], bins=bins, labels=labels)
     
-    
     # --- 5. Entpivotieren (Unpivot / Melt) der Energieträger ---
     print("Unpivoting energy sources...")
-    id_vars = ['country', 'iso_code', 'year', 'Gesamt_CO2_Mt', 'CP2_pro_Kopf_t', 'BIP_USD', 'BIP_USD_WB', 'Bevoelkerung', 'CO2_Intensitaet', 'Bevoelkerungs_Klasse']
+    id_vars = ['country', 'iso_code', 'year', 'Gesamt_CO2_Mt', 'CO2_pro_Kopf_t', 'BIP_USD', 'BIP_USD_WB', 'Bevoelkerung', 'CO2_Intensitaet', 'Bevoelkerungs_Klasse']
     fact_df = pd.melt(fact_df, id_vars=id_vars, value_vars=['coal_co2', 'oil_co2', 'gas_co2'], 
                       var_name='Traeger_Roh', value_name='CO2_Energietraeger_Mt')
     
@@ -111,7 +110,23 @@ def run_etl():
     print("Loading Enrichment: Country Codes...")
     dim_land = pd.read_csv('all.csv')
     dim_land = dim_land[['name', 'alpha-3', 'region', 'sub-region']]
-    dim_land = dim_land.rename(columns={'name': 'Landname', 'alpha-3': 'iso_code', 'region': 'Kontinent', 'sub-region': 'Sub_Region'})
+    dim_land = dim_land.rename(columns={'name': 'v_landname', 'alpha-3': 'iso_code', 'region': 'v_kontinent', 'sub-region': 'v_sub_region'})
+    
+    # Ridiculous Dimensions auf DIM_Land anwenden
+    def get_alpha_group(name):
+        first_char = str(name)[0].upper()
+        if 'A' <= first_char <= 'F': return "A-F"
+        elif 'G' <= first_char <= 'L': return "G-L"
+        elif 'M' <= first_char <= 'R': return "M-R"
+        else: return "S-Z"
+    dim_land['v_alphabetische_gruppe'] = dim_land['v_landname'].apply(get_alpha_group)
+    
+    if os.path.exists('national_animals.csv'):
+        dim_mascot = pd.read_csv('national_animals.csv')
+        dim_land = pd.merge(dim_land, dim_mascot, on='iso_code', how='left')
+        dim_land['v_nationaltier'] = dim_land['v_nationaltier'].fillna('Unbekannt')
+    else:
+        dim_land['v_nationaltier'] = 'Fehlt'
     
     
     print("Exporting datasets...")

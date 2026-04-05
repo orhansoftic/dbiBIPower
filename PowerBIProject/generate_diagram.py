@@ -25,6 +25,13 @@ entity "DIM_Land" {
   v_landname
   v_kontinent
   v_sub_region
+  v_alphabetische_gruppe
+}
+
+entity "SUB_Nationaltier" {
+  * dim_iso_code
+  --
+  v_nationaltier
 }
 
 entity "DIM_Zeit" {
@@ -42,6 +49,7 @@ entity "DIM_Energietraeger" {
 }
 
 DIM_Land ||--o{ FACT_Emissionen
+SUB_Nationaltier ||--|{ DIM_Land
 DIM_Zeit ||--o{ FACT_Emissionen
 DIM_Energietraeger ||--o{ FACT_Emissionen
 @enduml
